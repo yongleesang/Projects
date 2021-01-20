@@ -2,12 +2,22 @@ import requests
 import bs4
 import numpy as np
 
+<<<<<<< HEAD
 
 def main():
     print('sudoku solver')
     level = input("level of difficulty from 1-4 ")
     suduko_id = input("sudoku map id ")
     gridurl = "https://grid.websudoku.com/?level={}&set_id={}&goto=+Go+to+this+puzzle+".format(level, suduko_id)
+=======
+def main():
+    print('sudoku solver')
+    level = input("level of difficulty from 1-4")
+    suduko_id = input("sudoku map id")
+    gridurl = "https://grid.websudoku.com/?level={}&set_id={}&goto=+Go+to+this+puzzle+".format(level,suduko_id)
+    # url = "https://www.websudoku.com/?level=1&set_id=123&goto=+Go+to+this+puzzle+"
+    data = '{"level": 1, "set_id": 123, "Goto": "go to this puzzle"}'
+>>>>>>> f12e6e971408da8b22404e68d61ec0c29edbc3f8
     resp = requests.get(gridurl)
     if resp.status_code in {400, 404, 500}:
         print("Error: {}".format(resp.text))
@@ -17,7 +27,11 @@ def main():
     sudoku_mask = soup.find(id='editmask')['value']
     non_answered_sudoku = get_unanswered_sudoku(answers_sudoku, sudoku_mask)
     sudoku_map = get_matrix_grid(non_answered_sudoku, 9)
+<<<<<<< HEAD
     print(np.mat(sudoku_map))
+=======
+    print(np.matrix(sudoku_map))
+>>>>>>> f12e6e971408da8b22404e68d61ec0c29edbc3f8
     solve(sudoku_map)
 
 
@@ -47,16 +61,28 @@ def get_matrix_grid(str, k):
 
 
 def possible(y, x, n, sudoku):
+<<<<<<< HEAD
     for i in range(0, 9):
         if sudoku[y][i] == n:
             return False
     for i in range(0, 9):
+=======
+    for i in range(0,9):
+        if sudoku[y][i] == n:
+            return False
+    for i in range(0,9):
+>>>>>>> f12e6e971408da8b22404e68d61ec0c29edbc3f8
         if sudoku[i][x] == n:
             return False
     x0 = (x//3)*3
     y0 = (y//3)*3
+<<<<<<< HEAD
     for i in range(0, 3):
         for j in range(0, 3):
+=======
+    for i in range(0,3):
+        for j in range(0,3):
+>>>>>>> f12e6e971408da8b22404e68d61ec0c29edbc3f8
             if sudoku[y0+i][x0+j] == n:
                 return False
     return True
@@ -73,8 +99,14 @@ def solve(sudoku):
                         sudoku[y][x] = 0
                 return
 
+<<<<<<< HEAD
     print(np.mat(sudoku))
 
+=======
+    print(np.matrix(sudoku))
+
+    #level = 1 & set_id = 123 & goto = +Go + to + this + puzzle +
+>>>>>>> f12e6e971408da8b22404e68d61ec0c29edbc3f8
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     main()
