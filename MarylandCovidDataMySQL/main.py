@@ -12,7 +12,7 @@ DB_NAME = 'maryland_covid'
 url_array = []
 
 
-# Press the green button in the gutter to run the script.
+# connects to the database
 def database_connect():
     mydb = mysql.connector.connect(
         host="192.168.1.77",
@@ -21,7 +21,7 @@ def database_connect():
     )
     return mydb
 
-
+# create database if it doesnt exist
 def create_database():
     mydb = database_connect()
     cursor = mydb.cursor()
@@ -36,7 +36,8 @@ def create_database():
     cursor.close()
     mydb.close()
 
-
+# create tables, it is suppose to get the table name from the page, but issue with page ids having dashes
+# and names being really long, so not good for table names
 def create_tables(table_name):
     mydb = database_connect()
     cursor = mydb.cursor()
@@ -68,7 +69,7 @@ def create_tables(table_name):
     cursor.close()
     mydb.close()
 
-
+# parsing through the json file and getting what i need and inserting it in the database
 def add_data_to_database():
     mydb = database_connect()
     cursor = mydb.cursor()
@@ -127,7 +128,8 @@ def add_data_to_database():
     cursor.close()
     mydb.close()
 
-
+# using beautifulsoup(bs4) to parse through the html and getting the links for each page, and bs4 again the pages
+# to get the json urls
 def get_json_url_using_url():
     url = "https://healthdata.gov/search/field_resources%253Afield_format/json-56/type/dataset?query=covid%20state%20of%20maryland&sort_by=changed&sort_order=DESC"
     url_health = "https://healthdata.gov{}"
@@ -141,9 +143,8 @@ def get_json_url_using_url():
             soupin = bs4.BeautifulSoup(response.text, 'html.parser')
             json_url = soupin.find(class_='field-name-field-identifier').get_text()
             url_array.append(json_url + "{}".format("/rows.json"))
-        # print('Title:', i.get_text(strip=True), 'Link:', link)
 
-
+# testing adding data
 def add_data_test():
     print("start add_data_test")
     mydb = database_connect()
@@ -177,11 +178,43 @@ def add_data_test():
     mydb.close()
     print("end add_data_test")
 
+# getting the data out from the database and doing simple math with the numbers
+def get_data_from_database():
+    mydb = database_connect()
+    cursor = mydb.cursor()
+
+    try:
+        cursor.execute("USE {}".format(DB_NAME))
+    except mysql.connector.Error as err:
+        print("Database {} does not exists.".format(DB_NAME))
+        if err.errno == errorcode.ER_BAD_DB_ERROR:
+            create_database(cursor)
+            print("Database {} created successfully.".format(DB_NAME))
+            mydb.database = DB_NAME
+        else:
+            print(err)
+            exit(1)
+
+    cursor.execute("SELECT * FROM probable_death")
+
+    myresult = cursor.fetchall()
+
+    sum_death = 0
+    row_counter = 0
+    for x in myresult:
+        sum_death += x[2]
+        row_counter += 1
+
+    print('sum of all death' + str(sum_death))
+    print('avg death per day ' + str(sum_death/row_counter))
+
+    cursor.close()
+    mydb.close()
+
 
 if __name__ == '__main__':
     create_database()
-    # create_tables()
     get_json_url_using_url()
     # add_data_test()
     add_data_to_database()
-    # print(url_array)
+    get_data_from_database()
